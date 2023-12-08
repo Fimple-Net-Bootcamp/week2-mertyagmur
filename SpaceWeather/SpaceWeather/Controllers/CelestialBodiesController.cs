@@ -34,5 +34,50 @@ namespace SpaceWeather.Controllers
         {
             return Ok(celestialBodies);
         }
+
+        [HttpPost]
+        public IActionResult CreateCelestialBody(CelestialBody celestialBody)
+        {
+            celestialBody.Id = celestialBodies.Count + 1;
+            celestialBodies.Add(celestialBody);
+            return CreatedAtAction(nameof(GetCelestialBody), new { id = celestialBody.Id }, celestialBody);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCelestialBody(int id)
+        {
+            var celestialBody = celestialBodies.FirstOrDefault(c => c.Id == id);
+            if (celestialBody == null)
+            {
+                return NotFound();
+            }
+
+            celestialBodies.Remove(celestialBody);
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateCelestialBody(int id, CelestialBody updatedBody)
+        {
+            var celestialBody = celestialBodies.FirstOrDefault(c => c.Id == id);
+            if (celestialBody == null)
+            {
+                return NotFound();
+            }
+
+            celestialBody.Name = updatedBody.Name;
+            celestialBody.Mass = updatedBody.Mass;
+
+            if (celestialBody is Planet planet && updatedBody is Planet updatedPlanet)
+            {
+                planet.Gravity = updatedPlanet.Gravity;
+            }
+            else if (celestialBody is Moon moon && updatedBody is Moon updatedMoon)
+            {
+                moon.OrbitRadius = updatedMoon.OrbitRadius;
+            }
+
+            return Ok(celestialBody);
+        }
     }
 }
